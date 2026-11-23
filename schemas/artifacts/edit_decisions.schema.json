@@ -7,6 +7,11 @@
   "required": ["version", "cuts", "render_runtime"],
   "properties": {
     "version": { "type": "string", "const": "1.0" },
+    "fx_order": {
+      "type": "array",
+      "description": "Effect stack order, back to front: the first entry is the backmost layer (drawn first); later entries are nearer the viewer and are applied/drawn later.",
+      "items": { "type": "string" }
+    },
     "cuts": {
       "type": "array",
       "items": {

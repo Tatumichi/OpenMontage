@@ -12,6 +12,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import jsonschema
 import pytest
 
 # Add project root to path
@@ -284,7 +285,17 @@ class TestSchemas:
     def test_video_analysis_brief_validates(self):
         validate_artifact("video_analysis_brief", sample_artifact("video_analysis_brief"))
 
-    def test_edit_decisions_accepts_documented_end_tag(self):
+    @pytest.mark.parametrize(
+        ("fx_order", "valid"),
+        [
+            pytest.param(None, True, id="existing-dict"),
+            pytest.param(["transitions.js", "frozen.js"], True, id="correct-order"),
+            pytest.param(["frozen.js", "transitions.js"], False, id="reversed"),
+            pytest.param(["frozen.js"], True, id="only-frozen"),
+            pytest.param(["transitions.js"], True, id="only-transitions"),
+        ],
+    )
+    def test_edit_decisions_accepts_documented_end_tag(self, fx_order, valid):
         # documentary-montage edit-director.md §8b records edit_decisions.end_tag
         # and compose-director.md §4b reads end_tag.offset_seconds.
         doc = {
@@ -296,7 +307,13 @@ class TestSchemas:
                 "notes": "Tag starts at body_duration - tag_duration.",
             },
         }
-        validate_artifact("edit_decisions", doc)
+        if fx_order is not None:
+            doc["fx_order"] = fx_order
+        if valid:
+            validate_artifact("edit_decisions", doc)
+        else:
+            with pytest.raises(jsonschema.ValidationError, match=r"frozen\.js must appear after transitions\.js"):
+                validate_artifact("edit_decisions", doc)
 
     def test_edit_decisions_end_tag_rejects_negative_offset(self):
         doc = {

@@ -47,6 +47,21 @@ def validate_artifact(name: str, data: dict[str, Any]) -> None:
     """Validate artifact data against its schema. Raises on failure."""
     schema = load_schema(name)
     jsonschema.validate(instance=data, schema=schema)
+    if name == "edit_decisions" and "fx_order" in data:
+        _validate_fx_order(data["fx_order"])
+
+
+def _validate_fx_order(order: list[str]) -> None:
+    # Keep this baseline rule stable as new ordering rules are added.
+    for later, earlier in (("frozen.js", "transitions.js"),):
+        if later not in order or earlier not in order:
+            continue
+        last_earlier = len(order) - 1 - order[::-1].index(earlier)
+        if order.index(later) < last_earlier:
+            raise jsonschema.ValidationError(
+                f"{later} must appear after {earlier} in fx_order",
+                path=["fx_order"],
+            )
 
 
 def list_schemas() -> list[str]:
