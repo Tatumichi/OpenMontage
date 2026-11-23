@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "render_runtime": "remotion",
+  "renderer_family": "presenter",
+  "composition_mode": "templated",
+  "cuts": [
+    {
+      "id": "clip01",
+      "source": "clip01_video",
+      "in_seconds": 0.0,
+      "out_seconds": 32.5,
+      "transition_in": "cut",
+      "transition_out": "cut",
+      "reason": "whole announcement; speech from 0.0s"
+    }
+  ],
+  "subtitles": {
+    "enabled": true,
+    "style": "word_highlight",
+    "source": "clip01_subtitles",
+    "position": "bottom-center",
+    "font_size": 64,
+    "max_words_per_line": 8,
+    "caption_props": {
+      "wordSeparator": ""
+    }
+  },
+  "metadata": {
+    "composition": "TalkingHead",
+    "tool": "remotion_caption_burn",
+    "words_per_page": 8,
+    "highlight_color": "#22D3EE",
+    "profile": "youtube_shorts",
+    "hook_windows": {
+      "clip01": [
+        0.0,
+        2.5
+      ]
+    }
+  }
+}

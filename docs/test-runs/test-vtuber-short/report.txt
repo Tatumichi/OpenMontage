@@ -1,0 +1,25 @@
+test-vtuber-short 最終報告（2026-11-23　あわ）
+
+1. 動画のパスと尺
+   C:\Users\dubia\work\shared-memory\openmontage-output\test-vtuber-short.mp4
+   尺: 32.6秒（1080x1920、30fps、h264/aac、youtube_shorts）
+   素材: C:\Users\dubia\work\moviemaker-media\告知いよるも.mp4（0.0〜32.5秒）
+
+2. 止まった所
+   - 素材の文字起こしの前: faster-whisper 1.2.1 と PyAV 19.0.2 が合わずエラー（metadata_errors）。av を 15.1.0 に戻して解消。
+   - 素材の文字起こし: python を -X utf8 なしで起動すると10分以上止まった。-X utf8 で解消。
+   - タイトルなし-2026-11-15 16 41 53(copy).mp4 は文字起こしが10分で終わらず中止（不採用。原因は未調査）。
+   - 書き間違いによるスキーマエラー（scene_plan、edit、publish）。直して再実行。
+   - compose の final_review の警告2件は誤検知と判断（字幕は焼き込み済みを目で確認。一致0%は日本語を空白で分けて比べるため）。
+   パイプラインは全 stage が completed で、最後まで通った。
+
+3. 承認した stage と内容の要約（decision_log d-001 approval_policy にもとづく）
+   - idea: 素材の選定、clip-factory、Remotion + TalkingHead をそのまま（templated）、youtube_shorts、音楽なし、1本
+   - script: faster-whisper の文字起こしと clip01（0.0〜32.5秒）。誤認識は直さない
+   - scene_plan: 元の 9:16 のまま、字幕は下、オーバーレイなし
+   - assets: トリム、音量の正規化、srt 字幕
+   - publish: 投稿文の下書きのみ。アップロードなし
+   - edit / compose はゲートなし（manifest で human_approval_default: false）
+
+詳細: test-vtuber-short-notes.md
+ブランチ: lane/test-vtuber-short（OpenMontage）

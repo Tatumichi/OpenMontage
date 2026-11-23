@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "assets": [
+    {
+      "id": "clip01_video",
+      "type": "video",
+      "path": "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\assets\\video\\clip01_norm.mp4",
+      "source_tool": "video_trimmer+audio_enhance",
+      "scene_id": "clip01-shorts",
+      "duration_seconds": 32.6,
+      "resolution": "1080x1920",
+      "format": "mp4",
+      "cost_usd": 0
+    },
+    {
+      "id": "clip01_subtitles",
+      "type": "subtitle",
+      "path": "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\assets\\subtitles.srt",
+      "source_tool": "subtitle_gen",
+      "scene_id": "clip01-shorts",
+      "format": "srt",
+      "cost_usd": 0
+    }
+  ],
+  "total_cost_usd": 0,
+  "metadata": {
+    "subtitle_map": {
+      "clip01": {
+        "offset_seconds": 0.0,
+        "note": "clip starts at 0 → no rebase"
+      }
+    },
+    "audio_profile": "audio_enhance normalize_only",
+    "shared_assets": [],
+    "hero_sample": "skipped: no generated visuals (source footage only)"
+  }
+}

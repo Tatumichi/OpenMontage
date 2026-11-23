@@ -1,0 +1,82 @@
+{
+  "version": "1.0",
+  "title": "VTuber 初配信告知ショート（いよるも）",
+  "total_duration_seconds": 32.5,
+  "sections": [
+    {
+      "id": "s1",
+      "label": "hook/intro",
+      "text": "緊急各地 どうも眠れない夜もあっただろう略していい夜もです",
+      "start_seconds": 0.0,
+      "end_seconds": 7.48,
+      "source_ref": "告知いよるも.mp4"
+    },
+    {
+      "id": "s2",
+      "label": "profile+date",
+      "text": "普段はvr ちょっとで遊んだりイラストを書いたりしています そんな私12月5日にyoutube で初配信をしまーす",
+      "start_seconds": 7.48,
+      "end_seconds": 17.84,
+      "source_ref": "告知いよるも.mp4"
+    },
+    {
+      "id": "s3",
+      "label": "plans+CTA",
+      "text": "当日は緩くお話ししたりギターを引き渡っちゃおうかななんか思ってるんでぜひぜひ チャンネル登録して待っててね",
+      "start_seconds": 17.84,
+      "end_seconds": 26.92,
+      "source_ref": "告知いよるも.mp4"
+    },
+    {
+      "id": "s4",
+      "label": "date CTA",
+      "text": "12月5日20時にyoutube に集合",
+      "start_seconds": 27.54,
+      "end_seconds": 31.68,
+      "source_ref": "告知いよるも.mp4"
+    }
+  ],
+  "metadata": {
+    "transcriber": {
+      "tool": "transcriber",
+      "engine": "faster-whisper",
+      "model": "small",
+      "device": "cpu",
+      "compute_type": "int8",
+      "language": "ja"
+    },
+    "candidate_clips": [
+      {
+        "id": "clip01",
+        "source_in": 0.0,
+        "source_out": 32.5,
+        "hook_text": "緊急各地 どうも眠れない夜もあっただろう略していい夜もです",
+        "scores": {
+          "hook": 0.8,
+          "coherence": 0.9,
+          "value": 0.7,
+          "energy": 0.8,
+          "platform_fit": 0.95
+        },
+        "reason": "whole announcement is self-contained and under 60s",
+        "crop_viability": "native 9:16, no crop"
+      }
+    ],
+    "selected_clip_ids": [
+      "clip01"
+    ],
+    "rejected_candidates": [],
+    "ranking_model": "hook/coherence/value/energy/platform_fit",
+    "platform_assignments": {
+      "clip01": "youtube_shorts"
+    },
+    "asr_suspected_errors": [
+      "緊急各地 (likely 緊急告知)",
+      "略していい夜も (name segment)",
+      "ギターを引き渡っちゃおうかな (likely 弾いちゃおうかな)",
+      "vr ちょっと (likely VRChat)"
+    ],
+    "asr_corrections_applied": "none (left for human review; not guessed)",
+    "scene_detect": "skipped (optional; single continuous clip)"
+  }
+}

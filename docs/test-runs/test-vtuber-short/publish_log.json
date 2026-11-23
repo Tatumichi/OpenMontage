@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "entries": [
+    {
+      "platform": "youtube_shorts",
+      "status": "exported",
+      "export_path": "C:\\Users\\dubia\\work\\shared-memory\\openmontage-output\\test-vtuber-short.mp4",
+      "timestamp": "2026-11-23T14:36:34.122281+09:00",
+      "metadata_used": {
+        "title": "12月5日20時 YouTubeで初配信！【いよるも】#Shorts",
+        "description": "VRChat とイラストが好きな いよるも です。12月5日20時に YouTube で初配信します。チャンネル登録して待っててね。",
+        "note": "名前と日時は素材の発話から。表記（いよるも）はファイル名に合わせた推定。投稿前に本人確認が必要。"
+      }
+    }
+  ],
+  "metadata": {
+    "clip_catalog": [
+      "clip01"
+    ],
+    "posting_order": [
+      "clip01"
+    ],
+    "platform_copy_map": "C:\\Users\\dubia\\work\\shared-memory\\openmontage-output\\test-vtuber-short-publish-metadata.json",
+    "schedule_notes": "test run; no upload performed"
+  }
+}

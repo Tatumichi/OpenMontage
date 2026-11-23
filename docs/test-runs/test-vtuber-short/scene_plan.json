@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "style_playbook": "flat-motion-graphics",
+  "scenes": [
+    {
+      "id": "clip01-shorts",
+      "type": "talking_head",
+      "description": "Full announcement clip, native 9:16, TalkingHead with word-highlight captions at the bottom.",
+      "start_seconds": 0.0,
+      "end_seconds": 32.5,
+      "script_section_id": "s1",
+      "framing": "native 1080x1920, no punch-in",
+      "transition_in": "cut",
+      "transition_out": "cut",
+      "overlay_notes": "no hook overlay (speaker starts at 0s); captions only",
+      "required_assets": [
+        {
+          "type": "video",
+          "description": "clip01 trimmed from source 0.0-32.5s",
+          "source": "source"
+        },
+        {
+          "type": "subtitle",
+          "description": "clip01 word-level captions from transcriber",
+          "source": "generate"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "clip_layouts": {
+      "clip01": "9:16 native"
+    },
+    "safe_zones": {
+      "captions": "bottom (TalkingHead CaptionOverlay default)"
+    },
+    "frame_samples": [
+      "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\assets\\images\\frames"
+    ],
+    "platform_variants": [
+      "youtube_shorts"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "title": "VTuber 初配信告知ショート（いよるも）",
+  "hook": "冒頭0秒から本人が話し出す初配信告知",
+  "key_points": [
+    "自己紹介（VRChat・イラスト）",
+    "12月5日にYouTubeで初配信",
+    "チャンネル登録の呼びかけ"
+  ],
+  "core_message": "初配信の日時を伝えてチャンネル登録を促す",
+  "cta": "チャンネル登録して待っててね",
+  "tone": "明るい・親しみやすい",
+  "style": "縦型ショート、話者の映像そのまま＋単語ハイライト字幕",
+  "target_audience": "VTuber・VRChat に関心のある視聴者",
+  "target_platform": "youtube",
+  "target_duration_seconds": 32.5,
+  "metadata": {
+    "source_type": "stream announcement (vertical self-recorded talking footage)",
+    "source_path": "C:\\Users\\dubia\\work\\moviemaker-media\\告知いよるも.mp4",
+    "source_duration_seconds": 33.024,
+    "clip_target_range": [
+      1,
+      1
+    ],
+    "clip_families": [
+      "hook"
+    ],
+    "primary_platforms": [
+      "youtube_shorts"
+    ],
+    "secondary_platforms": [],
+    "selection_criteria": [
+      "speech coverage",
+      "standalone",
+      "fits youtube_shorts 60s max"
+    ],
+    "known_visual_constraints": "source is already 1080x1920 9:16; no reframe needed",
+    "distribution_goal": "awareness (test run)",
+    "composition": "TalkingHead (stock Remotion composition, used as-is)",
+    "media_profile": "youtube_shorts",
+    "transcriber": "faster-whisper via registry tool `transcriber` (model small, ja, CPU int8)",
+    "test_run": true
+  }
+}

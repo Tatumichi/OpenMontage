@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "outputs": [
+    {
+      "path": "C:\\Users\\dubia\\work\\shared-memory\\openmontage-output\\test-vtuber-short.mp4",
+      "format": "mp4",
+      "codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1920",
+      "fps": 30.0,
+      "duration_seconds": 32.6,
+      "file_size_bytes": 25377974,
+      "platform_target": "youtube_shorts"
+    }
+  ],
+  "render_time_seconds": 119.7,
+  "render_grammar": "presenter",
+  "warnings": [
+    "Subtitles expected but not found in output and no subtitle source file exists for burn-in",
+    "Low transcript-to-script match: only 0% of script words appear in the transcribed audio (0/10). Narration may be truncated, mispronounced, or the wrong script was used."
+  ],
+  "verification_notes": [
+    "remotion_caption_burn (TalkingHead) 86.69s, method=remotion",
+    "video_compose encode profile=youtube_shorts",
+    "audio_mixer extract: ok",
+    "final transcript: ok",
+    "final_review status=pass"
+  ],
+  "metadata": {
+    "job_index": [
+      "clip01-youtube_shorts"
+    ],
+    "failed_jobs": [],
+    "intermediates": [
+      "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\assets\\video\\clip01_norm.mp4",
+      "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\renders\\clip01_talkinghead.mp4"
+    ]
+  }
+}

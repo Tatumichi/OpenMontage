@@ -1,0 +1,50 @@
+{
+  "idea": {
+    "start": "14:33:31",
+    "end": "14:33:31",
+    "seconds": 0.2,
+    "approved": "approved under approval_policy d-001 (test run, pre-authorized by mugi's request)"
+  },
+  "script": {
+    "start": "14:33:34",
+    "end": "14:33:45",
+    "seconds": 10.9,
+    "approved": "approved under approval_policy d-001 (test run, pre-authorized by mugi's request)",
+    "transcribe_seconds": 10.6
+  },
+  "scene_plan": {
+    "start": "14:33:53",
+    "end": "14:33:53",
+    "seconds": 0.7,
+    "approved": "approved under approval_policy d-001 (test run, pre-authorized by mugi's request)",
+    "frames": [
+      "C:\\Users\\dubia\\OneDrive\\ドキュメント\\MEGA\\shared-memory\\OpenMontage\\projects\\test-vtuber-short\\assets\\images\\frames"
+    ]
+  },
+  "assets": {
+    "start": "14:34:00",
+    "end": "14:34:02",
+    "seconds": 2.1,
+    "approved": "approved under approval_policy d-001 (test run, pre-authorized by mugi's request)"
+  },
+  "edit": {
+    "start": "14:34:08",
+    "end": "14:34:08",
+    "seconds": 0.2,
+    "approved": "not gated (human_approval_default: false)"
+  },
+  "compose": {
+    "start": "14:34:12",
+    "end": "14:36:12",
+    "seconds": 119.9,
+    "approved": "not gated (human_approval_default: false)",
+    "final_review": "pass",
+    "duration": 32.6
+  },
+  "publish": {
+    "start": "14:36:34",
+    "end": "14:36:34",
+    "seconds": 0.5,
+    "approved": "approved under approval_policy d-001 (test run, pre-authorized by mugi's request)"
+  }
+}

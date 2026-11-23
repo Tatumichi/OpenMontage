@@ -1,0 +1,177 @@
+{
+  "version": "1.0",
+  "project_id": "test-vtuber-short",
+  "decisions": [
+    {
+      "decision_id": "d-001",
+      "stage": "idea",
+      "category": "approval_policy",
+      "subject": "Full-run pre-authorization",
+      "options_considered": [
+        {
+          "option_id": "gate_each",
+          "label": "Stop at every gate",
+          "score": 0.3,
+          "reason": "default protocol",
+          "rejected_because": "test run; requester asked to run to the end"
+        },
+        {
+          "option_id": "preauth",
+          "label": "Run straight through, record each gate",
+          "score": 0.9,
+          "reason": "mugi's work request: test run, leave approval_policy in decision_log and run to the end"
+        }
+      ],
+      "selected": "preauth",
+      "reason": "Requester (mugi) explicitly pre-authorized the full run for this test and asked that each approved stage be recorded in the notes.",
+      "user_visible": true,
+      "user_approved": true
+    },
+    {
+      "decision_id": "d-002",
+      "stage": "idea",
+      "category": "pipeline_selection",
+      "subject": "Pipeline",
+      "options_considered": [
+        {
+          "option_id": "clip-factory",
+          "label": "clip-factory",
+          "score": 1.0,
+          "reason": "specified by requester"
+        },
+        {
+          "option_id": "talking-head",
+          "label": "talking-head",
+          "score": 0.5,
+          "reason": "also fits footage",
+          "rejected_because": "requester specified clip-factory"
+        }
+      ],
+      "selected": "clip-factory",
+      "reason": "Specified in the work request.",
+      "user_visible": true,
+      "user_approved": true
+    },
+    {
+      "decision_id": "d-003",
+      "stage": "idea",
+      "category": "render_runtime_selection",
+      "subject": "Render runtime",
+      "options_considered": [
+        {
+          "option_id": "remotion",
+          "label": "Remotion (TalkingHead)",
+          "score": 1.0,
+          "reason": "TalkingHead composition + word-level caption burn"
+        },
+        {
+          "option_id": "hyperframes",
+          "label": "HyperFrames",
+          "score": 0.1,
+          "reason": "available on this machine",
+          "rejected_because": "caption-burn parity deferred on clip-factory"
+        },
+        {
+          "option_id": "ffmpeg",
+          "label": "FFmpeg only",
+          "score": 0.3,
+          "reason": "plain trim/encode",
+          "rejected_because": "requester asked for the TalkingHead composition"
+        }
+      ],
+      "selected": "remotion",
+      "reason": "TalkingHead specified; clip-factory caption burn is Remotion-only.",
+      "user_visible": true,
+      "user_approved": true
+    },
+    {
+      "decision_id": "d-004",
+      "stage": "idea",
+      "category": "composition_mode",
+      "subject": "Composition authoring mode",
+      "options_considered": [
+        {
+          "option_id": "templated",
+          "label": "Templated (stock TalkingHead as-is)",
+          "score": 1.0,
+          "reason": "requester: no new templates/compositions"
+        },
+        {
+          "option_id": "atelier",
+          "label": "Atelier",
+          "score": 0.0,
+          "reason": "would author a new composition",
+          "rejected_because": "new compositions are out of scope for this test"
+        }
+      ],
+      "selected": "templated",
+      "reason": "Use TalkingHead unchanged.",
+      "user_visible": true,
+      "user_approved": true
+    },
+    {
+      "decision_id": "d-005",
+      "stage": "idea",
+      "category": "concept_selection",
+      "subject": "Source footage",
+      "options_considered": [
+        {
+          "option_id": "iyorumo",
+          "label": "\u544a\u77e5\u3044\u3088\u308b\u3082.mp4",
+          "score": 0.95,
+          "reason": "33.0s, speech 31.1s (94%), 4 coherent segments: intro, debut date, plans, CTA"
+        },
+        {
+          "option_id": "vrchat",
+          "label": "VRChat_20261117_043857 (1).mp4",
+          "score": 0.85,
+          "reason": "34.2s, speech 29.8s; also clear",
+          "rejected_because": "lower speech ratio, runner-up"
+        },
+        {
+          "option_id": "1116",
+          "label": "1116.mp4",
+          "score": 0.6,
+          "reason": "39.1s, speech 24.2s; many ASR misrecognitions",
+          "rejected_because": "less speech, weaker transcript"
+        },
+        {
+          "option_id": "untitled",
+          "label": "\u30bf\u30a4\u30c8\u30eb\u306a\u3057-2026-11-15 16 41 53(copy).mp4",
+          "score": 0.1,
+          "reason": "56.6s; faster-whisper did not finish within 10 min",
+          "rejected_because": "transcription stalled; speech unverified"
+        }
+      ],
+      "selected": "iyorumo",
+      "reason": "Most speech, cleanest transcript, standalone announcement.",
+      "user_visible": true,
+      "user_approved": true
+    },
+    {
+      "decision_id": "d-006",
+      "stage": "idea",
+      "category": "music_source",
+      "subject": "Background music",
+      "options_considered": [
+        {
+          "option_id": "none",
+          "label": "Keep source audio only",
+          "score": 0.9,
+          "reason": "source already has its own audio bed"
+        },
+        {
+          "option_id": "library",
+          "label": "music_library track",
+          "score": 0.2,
+          "reason": "not requested",
+          "rejected_because": "not part of the test request"
+        }
+      ],
+      "selected": "none",
+      "reason": "Test focuses on clip + TalkingHead captions.",
+      "user_visible": true,
+      "user_approved": true
+    }
+  ]
+}
