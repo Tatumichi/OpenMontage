@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from html import escape
+from math import isfinite
 import time
 from pathlib import Path
 from typing import Any
@@ -42,11 +43,16 @@ class SubtitleGen(BaseTool):
 
     input_schema = {
         "type": "object",
-        "required": ["segments"],
+        "oneOf": [{"required": ["segments"]}, {"required": ["moviemaker_cuts"]}],
         "properties": {
             "segments": {
                 "type": "array",
                 "description": "Transcript segments from transcriber (with words and timestamps)",
+            },
+            "moviemaker_cuts": {
+                "type": "array",
+                "description": "The cuts array from a moviemaker data.json. Uses output-relative seconds and preserves authored line breaks.",
+                "items": {"type": "object"},
             },
             "format": {
                 "type": "string",
@@ -74,14 +80,13 @@ class SubtitleGen(BaseTool):
     }
 
     resource_profile = ResourceProfile(cpu_cores=1, ram_mb=128, vram_mb=0, disk_mb=10)
-    idempotency_key_fields = ["segments", "format", "max_words_per_cue"]
+    idempotency_key_fields = ["segments", "moviemaker_cuts", "format", "max_words_per_cue"]
     side_effects = ["writes subtitle file to output_path"]
     user_visible_verification = [
         "Play video with generated subtitles and verify timing",
     ]
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
-        segments = inputs["segments"]
         fmt = inputs.get("format", "srt")
         max_words = inputs.get("max_words_per_cue", 8)
         max_chars = inputs.get("max_chars_per_line", 42)
@@ -91,12 +96,20 @@ class SubtitleGen(BaseTool):
 
         start = time.time()
 
-        # Apply word corrections if provided
-        if corrections:
-            segments = self._apply_corrections(segments, corrections)
-
-        # Build cues from word-level timestamps
-        cues = self._build_cues(segments, max_words, max_chars)
+        if ("segments" in inputs) == ("moviemaker_cuts" in inputs):
+            return ToolResult(success=False, error="Provide exactly one of segments or moviemaker_cuts")
+        if "moviemaker_cuts" in inputs:
+            if highlight_style != "none" or corrections:
+                return ToolResult(success=False, error="moviemaker_cuts requires plain captions without corrections")
+            try:
+                cues = self._moviemaker_cues(inputs["moviemaker_cuts"])
+            except ValueError as exc:
+                return ToolResult(success=False, error=str(exc))
+        else:
+            segments = inputs["segments"]
+            if corrections:
+                segments = self._apply_corrections(segments, corrections)
+            cues = self._build_cues(segments, max_words, max_chars)
 
         if fmt == "srt":
             content = self._render_srt(cues, highlight_style)
@@ -128,6 +141,35 @@ class SubtitleGen(BaseTool):
             artifacts=[str(out)],
             duration_seconds=round(elapsed, 2),
         )
+
+    @classmethod
+    def _moviemaker_cues(cls, cuts: list[dict]) -> list[dict]:
+        """Map authored cuts to cues without regrouping or retiming them."""
+        if not isinstance(cuts, list):
+            raise ValueError("moviemaker_cuts must be an array")
+        cues = []
+        for index, cut in enumerate(cuts):
+            label = f"moviemaker_cuts[{index}]"
+            lines = cut.get("lines", []) if isinstance(cut, dict) else None
+            if not isinstance(lines, list) or any(not isinstance(line, str) for line in lines):
+                raise ValueError(f"{label}.lines must be an array of strings")
+            if not any(line.strip() for line in lines):
+                continue
+            if any(not line.strip() or "\n" in line or "\r" in line for line in lines):
+                raise ValueError(f"{label}.lines must contain one nonempty line per entry")
+            start, end = cut.get("start"), cut.get("end")
+            if not all(type(value) in (float, int) and isfinite(value) for value in (start, end)):
+                raise ValueError(f"{label} requires finite start and end seconds")
+            if not 0 <= start < end or cls._hmsms(start) == cls._hmsms(end):
+                raise ValueError(f"{label} requires an increasing interval at millisecond precision")
+            cues.append({
+                "index": len(cues) + 1,
+                "start": start,
+                "end": end,
+                "text": "\n".join(lines),
+                "words": [],
+            })
+        return cues
 
     @staticmethod
     def _apply_corrections(

@@ -39,6 +39,8 @@ This prevents the most expensive mistake: generating 10+ assets in a direction t
 
 Each approved clip needs its own subtitle asset, timed from clip start rather than source start. This timestamp rebasing is critical.
 
+If the clip already has authored moviemaker cuts, pass data.json cuts as moviemaker_cuts to subtitle_gen. Use clip-relative start/end seconds and keep authored lines intact. Use plain captions with this input. See docs/MOVIEMAKER_WORKFLOW_JA.md for a local example.
+
 Store clip-relative timing details in `asset_manifest.metadata.subtitle_map`.
 
 ### 3. Normalize Audio Consistently

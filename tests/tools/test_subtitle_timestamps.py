@@ -47,3 +47,21 @@ def test_all_outputs_are_well_formed():
     for t in (0.0, 0.4995, 0.9995, 0.9999, 1.0, 59.9995, 3599.9999, 12345.9999):
         assert _SRT_RE.match(SubtitleGen._ts_srt(t)), SubtitleGen._ts_srt(t)
         assert _VTT_RE.match(SubtitleGen._ts_vtt(t)), SubtitleGen._ts_vtt(t)
+
+
+def test_moviemaker_cuts_preserve_timing_and_lines(tmp_path):
+    output = tmp_path / "moviemaker.srt"
+    result = SubtitleGen().execute({
+        "moviemaker_cuts": [
+            {"start": 0.25, "end": 1.5, "lines": ["First", "second"]},
+            {"start": 1.5, "end": 3, "telop": "No dialogue caption"},
+            {"start": 3, "end": 4, "lines": ["Third"]},
+        ],
+        "output_path": str(output),
+    })
+    assert result.success, result.error
+    assert result.data["cue_count"] == 2
+    assert output.read_text(encoding="utf-8") == (
+        "1\n00:00:00,250 --> 00:00:01,500\nFirst\nsecond\n\n"
+        "2\n00:00:03,000 --> 00:00:04,000\nThird\n"
+    )
