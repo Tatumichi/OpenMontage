@@ -154,7 +154,13 @@ class PiperTTS(BaseTool):
             # Both sides UTF-8: the Windows default (cp1252) turns accented text
             # into input piper can't decode, which yields an empty WAV.
             encoding="utf-8",
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+            errors="replace",
+            env={
+                **os.environ,
+                "PYTHONIOENCODING": "utf-8",
+                "PYTHONUTF8": "1",
+                "PYTHONUNBUFFERED": "1",
+            },
             timeout=300,
         )
 

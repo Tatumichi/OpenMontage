@@ -350,7 +350,9 @@ class MathAnimate(BaseTool):
             proc = subprocess.run(
                 cmd,
                 capture_output=True,
-                text=True,
+                encoding="utf-8",
+                errors="replace",
+                env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
                 timeout=300,  # 5 min timeout
                 cwd=str(work_dir),
             )

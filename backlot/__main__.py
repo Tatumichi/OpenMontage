@@ -42,6 +42,7 @@ def _spawn_server(port: int) -> None:
         "stdout": subprocess.DEVNULL,
         "stderr": subprocess.DEVNULL,
         "stdin": subprocess.DEVNULL,
+        "env": {**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
     }
     if os.name == "nt":
         kwargs["creationflags"] = (

@@ -25,10 +25,21 @@ from tools.base_tool import (
 from tools.provider_jobs import request_json, download, poll, save_job
 
 
+IMAGE_MIME_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
+
+
 def local_image(path):
+    mime_type = mimetypes.guess_type(path)[0]
+    if mime_type is None:
+        mime_type = IMAGE_MIME_TYPES.get(Path(path).suffix.lower(), "image/png")
     return (
         "data:"
-        + (mimetypes.guess_type(path)[0] or "image/png")
+        + mime_type
         + ";base64,"
         + base64.b64encode(Path(path).read_bytes()).decode()
     )

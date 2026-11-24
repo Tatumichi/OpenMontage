@@ -33,7 +33,11 @@ def _mmdc_major_version(mmdc_path: str) -> Optional[int]:
     """Return the installed mermaid-cli major version, or None if unknown."""
     try:
         proc = subprocess.run(
-            [mmdc_path, "--version"], capture_output=True, text=True, timeout=30
+            [mmdc_path, "--version"],
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

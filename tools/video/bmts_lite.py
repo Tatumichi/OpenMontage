@@ -199,7 +199,13 @@ class BgmMontageLite(BaseTool):
         )
         try:
             result = subprocess.run(
-                [python, "-c", code], capture_output=True, text=True, timeout=30, check=False
+                [python, "-c", code],
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
+                timeout=30,
+                check=False,
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise DependencyError(f"Could not check the BMTS-Lite Python environment: {exc}") from exc
@@ -284,6 +290,7 @@ class BgmMontageLite(BaseTool):
                     ],
                     timeout=3600,
                     cwd=workspace,
+                    env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
                 )
                 summary = json.loads(process.stdout)
                 video_file = workspace / "result.mp4"

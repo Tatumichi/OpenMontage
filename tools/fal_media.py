@@ -182,15 +182,9 @@ class FalMedia(BaseTool):
         if inputs.get("image_path"):
             paths.insert(0, inputs["image_path"])
         if paths:
-            import mimetypes, base64
+            from tools.schema_media import local_image
 
-            refs = [
-                "data:"
-                + (mimetypes.guess_type(p)[0] or "image/png")
-                + ";base64,"
-                + base64.b64encode(Path(p).read_bytes()).decode()
-                for p in paths
-            ]
+            refs = [local_image(path) for path in paths]
             if "image_urls" in props:
                 payload["image_urls"] = list(payload.get("image_urls") or []) + refs
             elif len(refs) == 1 and (

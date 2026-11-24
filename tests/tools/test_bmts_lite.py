@@ -63,7 +63,13 @@ def test_run_emits_mp4_timeline_audiomap_and_openmontage_report(tmp_path: Path) 
         target.write_text("", encoding="utf-8")
     seen_request: dict = {}
 
-    def fake_run(command: list[str], *, timeout: int | None = None, cwd: Path | None = None):
+    def fake_run(
+        command: list[str],
+        *,
+        timeout: int | None = None,
+        cwd: Path | None = None,
+        env: dict[str, str] | None = None,
+    ):
         if "--request" in command:
             request_path = Path(command[command.index("--request") + 1])
             workspace = Path(command[command.index("--workspace") + 1])

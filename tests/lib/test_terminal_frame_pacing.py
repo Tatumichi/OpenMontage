@@ -36,7 +36,10 @@ def test_trace_matches_the_actual_terminal_scene_cursor():
     node = shutil.which("node")
     if not node:
         pytest.skip("Node unavailable; pure Python frame regressions still run")
-    source = (Path(__file__).parents[2] / "remotion-composer/src/components/TerminalScene.tsx").read_text()
+    source = (
+        Path(__file__).parents[2]
+        / "remotion-composer/src/components/TerminalScene.tsx"
+    ).read_text(encoding="utf-8")
     layout = source.split("// Lay out timing in frames", 1)[1].split("// Only render lines", 1)[0]
     layout = layout.replace(": RenderedLine[]", "").replace(": RenderedPill[]", "")
     steps = [

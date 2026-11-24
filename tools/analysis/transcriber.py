@@ -8,9 +8,14 @@ are not available.
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
+import tempfile
 import time
+from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from tools.base_tool import (
     BaseTool,
@@ -24,6 +29,9 @@ from tools.base_tool import (
     ToolStatus,
     ToolTier,
 )
+
+
+_DEFAULT_TIMEOUT_SECONDS = 1800
 
 
 class Transcriber(BaseTool):
@@ -62,6 +70,12 @@ class Transcriber(BaseTool):
                 "default": "base",
             },
             "language": {"type": "string", "description": "ISO 639-1 language code, or null for auto-detect"},
+            "timeout_seconds": {
+                "type": "integer",
+                "minimum": 1,
+                "default": _DEFAULT_TIMEOUT_SECONDS,
+                "description": "Time limit for transcription, including model loading and diarization",
+            },
             "diarize": {"type": "boolean", "default": False},
             "output_dir": {"type": "string", "description": "Directory for output files"},
         },
@@ -115,16 +129,69 @@ class Transcriber(BaseTool):
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
         input_path = Path(inputs["input_path"])
-        model_size = inputs.get("model_size", "base")
-        language = inputs.get("language")
-        diarize = inputs.get("diarize", False)
-        output_dir = Path(inputs.get("output_dir", input_path.parent))
-
         if not input_path.exists():
             return ToolResult(success=False, error=f"Input file not found: {input_path}")
 
-        output_dir.mkdir(parents=True, exist_ok=True)
+        raw_timeout = inputs.get("timeout_seconds", _DEFAULT_TIMEOUT_SECONDS)
+        timeout_error = "timeout_seconds must be a positive integer"
+        if isinstance(raw_timeout, bool):
+            return ToolResult(success=False, error=timeout_error)
+        try:
+            timeout = int(raw_timeout)
+        except (TypeError, ValueError, OverflowError):
+            return ToolResult(success=False, error=timeout_error)
+        if timeout < 1:
+            return ToolResult(success=False, error=timeout_error)
 
+        request = {
+            "input_path": str(input_path.resolve()),
+            "model_size": inputs.get("model_size", "base"),
+            "language": inputs.get("language"),
+            "diarize": inputs.get("diarize", False),
+        }
+
+        # A native decoder or model call can block. Keep it in a child process
+        # so the timeout can stop it, and inherit stderr for live progress logs.
+        with tempfile.TemporaryDirectory(prefix="openmontage-transcriber-") as directory:
+            result_path = Path(directory) / "result.json"
+            try:
+                process = subprocess.run(
+                    [sys.executable, "-m", "tools.analysis.transcriber", str(result_path)],
+                    input=json.dumps(request),
+                    stdout=subprocess.PIPE,
+                    cwd=Path(__file__).resolve().parents[2],
+                    env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
+                    encoding="utf-8",
+                    errors="replace",
+                    timeout=timeout,
+                )
+            except subprocess.TimeoutExpired:
+                return ToolResult(success=False, error=f"Transcription timed out after {timeout}s")
+            except OSError as exc:
+                return ToolResult(success=False, error=f"Could not start transcription: {exc}")
+            if process.returncode:
+                return ToolResult(
+                    success=False, error=f"Transcription worker exited with code {process.returncode}",
+                )
+            # The worker sends errors over stdout if writing the result file fails.
+            payload = process.stdout or result_path.read_text(encoding="utf-8")
+            result = ToolResult(**json.loads(payload))
+
+        if result.success:
+            output_dir = Path(inputs.get("output_dir", input_path.parent))
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = output_dir / f"{input_path.stem}_transcript.json"
+            output_path.write_text(json.dumps(result.data, indent=2), encoding="utf-8")
+            result.artifacts.append(str(output_path))
+        return result
+
+    def _transcribe(self, inputs: dict[str, Any]) -> ToolResult:
+        input_path = Path(inputs["input_path"])
+        model_size = inputs.get("model_size", "base")
+        language = inputs.get("language")
+        diarize = inputs.get("diarize", False)
+
+        print("[transcriber] Initializing faster-whisper", file=sys.stderr, flush=True)
         try:
             from faster_whisper import WhisperModel
         except ImportError:
@@ -133,7 +200,7 @@ class Transcriber(BaseTool):
                 error="faster-whisper is not installed. Run: pip install faster-whisper",
             )
 
-        start = time.time()
+        start = time.monotonic()
 
         # faster-whisper executes through CTranslate2, so that runtime—not
         # PyTorch—is authoritative for CUDA availability and compute types.
@@ -154,11 +221,17 @@ class Transcriber(BaseTool):
             pass
 
         def _transcribe_on(selected_device: str, selected_compute_type: str):
+            print(
+                f"[transcriber] Loading {model_size} model on {selected_device}",
+                file=sys.stderr,
+                flush=True,
+            )
             model = WhisperModel(
                 model_size,
                 device=selected_device,
                 compute_type=selected_compute_type,
             )
+            print("[transcriber] Decoding and transcribing audio", file=sys.stderr, flush=True)
             segments_iter, transcription_info = model.transcribe(
                 str(input_path),
                 language=language,
@@ -170,7 +243,15 @@ class Transcriber(BaseTool):
             parsed_words = []
             # faster-whisper evaluates lazily. Draining the iterator here keeps
             # missing CUDA runtime libraries inside the fallback boundary.
+            next_progress = 0.0
             for seg in segments_iter:
+                if seg.end >= next_progress:
+                    print(
+                        f"[transcriber] Transcribed through {seg.end:.1f}s of audio",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    next_progress = seg.end + 30
                 seg_data = {
                     "id": seg.id,
                     "start": round(seg.start, 3),
@@ -202,6 +283,7 @@ class Transcriber(BaseTool):
             if device == "cpu":
                 raise
             gpu_fallback_reason = f"{type(exc).__name__}: {exc}"
+            print("[transcriber] CUDA failed, retrying on CPU", file=sys.stderr, flush=True)
             device = "cpu"
             compute_type = "int8"
             segments, word_timestamps, info = _transcribe_on(device, compute_type)
@@ -211,11 +293,12 @@ class Transcriber(BaseTool):
 
         # Optional diarization pass
         if diarize and self._has_diarization():
+            print("[transcriber] Running speaker diarization", file=sys.stderr, flush=True)
             segments = self._apply_diarization(
                 str(input_path), segments, detected_language
             )
 
-        elapsed = time.time() - start
+        elapsed = time.monotonic() - start
 
         result_data = {
             "segments": segments,
@@ -228,14 +311,10 @@ class Transcriber(BaseTool):
             "gpu_fallback_reason": gpu_fallback_reason,
         }
 
-        # Write transcript JSON
-        output_path = output_dir / f"{input_path.stem}_transcript.json"
-        output_path.write_text(json.dumps(result_data, indent=2), encoding="utf-8")
-
+        print(f"[transcriber] Finished in {elapsed:.1f}s", file=sys.stderr, flush=True)
         return ToolResult(
             success=True,
             data=result_data,
-            artifacts=[str(output_path)],
             duration_seconds=round(elapsed, 2),
         )
 
@@ -277,3 +356,22 @@ class Transcriber(BaseTool):
         except Exception:
             # Diarization is best-effort; return original segments on failure
             return segments
+
+
+if __name__ == "__main__":
+    # Send transcription logs to stderr and reserve stdout for fallback errors.
+    from contextlib import redirect_stdout
+
+    try:
+        request = json.load(sys.stdin)
+        with redirect_stdout(sys.stderr):
+            result = Transcriber()._transcribe(request)
+    except Exception as exc:
+        result = ToolResult(success=False, error=f"{type(exc).__name__}: {exc}")
+    try:
+        Path(sys.argv[1]).write_text(json.dumps(asdict(result)), encoding="utf-8")
+    except Exception as exc:
+        print(json.dumps({
+            "success": False,
+            "error": f"Could not save transcription worker result: {type(exc).__name__}: {exc}",
+        }), flush=True)

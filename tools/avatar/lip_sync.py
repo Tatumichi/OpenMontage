@@ -201,7 +201,12 @@ class LipSync(BaseTool):
         ]
 
         try:
-            self.run_command(cmd, timeout=600, cwd=wav2lip_dir)
+            self.run_command(
+                cmd,
+                timeout=600,
+                cwd=wav2lip_dir,
+                env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
+            )
         except subprocess.TimeoutExpired:
             return ToolResult(success=False, error="Lip-sync timed out after 600 seconds")
         except Exception as e:

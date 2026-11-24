@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -55,6 +56,14 @@ def _validate_font_file(field: str, value: str) -> str:
             f"ending in .ttf/.otf/.ttc), got {value!r}"
         )
     return value
+
+
+def _resolve_font_file(font_file: str) -> str | Path:
+    """Resolve a bare system font filename for FFmpeg's drawtext filter."""
+    if sys.platform.startswith("win"):
+        font_dir = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
+        return font_dir / font_file
+    return font_file
 
 
 def _validate_int_range(field: str, value: Any, lo: int, hi: int) -> int:
@@ -251,7 +260,7 @@ class ShowcaseCard(BaseTool):
             title_path = _write_drawtext_textfile(text_tmp_dir, title)
             filters.append(
                 f"drawtext=textfile='{_safe_filter_path(title_path)}':expansion=none"
-                f":fontfile='{title_font}'"
+                f":fontfile='{_safe_filter_path(Path(_resolve_font_file(title_font)))}'"
                 f":fontsize={title_font_size}"
                 f":fontcolor={title_color}"
                 f":borderw=3:bordercolor=black"
@@ -263,7 +272,7 @@ class ShowcaseCard(BaseTool):
                 subtitle_path = _write_drawtext_textfile(text_tmp_dir, subtitle)
                 filters.append(
                     f"drawtext=textfile='{_safe_filter_path(subtitle_path)}':expansion=none"
-                    f":fontfile='segoeui.ttf'"
+                    f":fontfile='{_safe_filter_path(Path(_resolve_font_file('segoeui.ttf')))}'"
                     f":fontsize={subtitle_font_size}"
                     f":fontcolor=white@0.85"
                     f":x=(w-text_w)/2:y=h-100"
@@ -274,7 +283,7 @@ class ShowcaseCard(BaseTool):
                 watermark_path = _write_drawtext_textfile(text_tmp_dir, watermark)
                 filters.append(
                     f"drawtext=textfile='{_safe_filter_path(watermark_path)}':expansion=none"
-                    f":fontfile='segoeui.ttf'"
+                    f":fontfile='{_safe_filter_path(Path(_resolve_font_file('segoeui.ttf')))}'"
                     f":fontsize=36"
                     f":fontcolor=white@0.3"
                     f":x=(w-text_w)/2:y=(h-text_h)/2"

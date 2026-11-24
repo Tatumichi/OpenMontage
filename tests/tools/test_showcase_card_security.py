@@ -14,10 +14,11 @@ Covers two issues raised on review of the initial subtitle-style fix:
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import tempfile
-from pathlib import PurePosixPath, PureWindowsPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 import pytest
 
@@ -178,7 +179,12 @@ def test_textfile_path_punctuation_preserves_rendered_frame(tmp_path, directory)
     special = _write_drawtext_textfile(tmp_path / directory, text)
 
     def frame(path):
-        vf = f"drawtext=textfile='{_safe_filter_path(path)}':expansion=none:fontcolor=white:fontsize=24"
+        font_file = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / "segoeui.ttf"
+        vf = (
+            f"drawtext=textfile='{_safe_filter_path(path)}':expansion=none"
+            f":fontfile='{_safe_filter_path(font_file)}'"
+            f":fontcolor=white:fontsize=24"
+        )
         return subprocess.run(
             ["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "color=black:s=640x160:d=0.1",
              "-vf", vf, "-frames:v", "1", "-pix_fmt", "gray", "-f", "rawvideo", "-"],

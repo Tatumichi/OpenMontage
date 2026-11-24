@@ -33,7 +33,7 @@ COMMAND_POSITION = re.compile(r"(?:^\t@?|\|\| |&& |\$\$\(|^PIP = )\$\(RUN_PYTHON
 
 
 def test_run_python_is_quoted_in_every_command_position():
-    text = MAKEFILE.read_text()
+    text = MAKEFILE.read_text(encoding="utf-8")
     offenders = []
     for match in COMMAND_POSITION.finditer(text):
         line_no = text.count("\n", 0, match.start()) + 1

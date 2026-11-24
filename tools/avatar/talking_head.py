@@ -208,7 +208,12 @@ class TalkingHead(BaseTool):
         if still_mode:
             cmd.append("--still")
 
-        self.run_command(cmd, cwd=sadtalker_dir, timeout=600)
+        self.run_command(
+            cmd,
+            cwd=sadtalker_dir,
+            timeout=600,
+            env={**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"},
+        )
 
         # Find the output video in result_dir (SadTalker names it automatically)
         generated = glob.glob(str(result_dir / "**" / "*.mp4"), recursive=True)
